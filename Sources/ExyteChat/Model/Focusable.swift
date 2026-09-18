@@ -4,6 +4,6 @@
 
 import Foundation
 
-enum Focusable: Hashable {
+public enum Focusable: Hashable {
     case uuid(UUID)
 }
