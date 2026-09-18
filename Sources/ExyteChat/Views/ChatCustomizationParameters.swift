@@ -15,6 +15,11 @@ struct ChatCustomizationParameters {
     var showDateHeaders: Bool = true
     var isScrollEnabled: Bool = true
     var autoFocusTextInputOnChatOpen: Bool = false
+    /// MUX: Wird von aussen hochgezaehlt, wenn die App das Eingabefeld fokussieren will
+    /// (z. B. nach dem Wischen zum Antworten, das nicht ueber das Menue der Bibliothek
+    /// laeuft). `ChatView` ruft daraufhin denselben internen Weg wie beim Antworten:
+    /// `viewModel.focusTheInputTextView()`.
+    var focusInputTrigger: Int = 0
     var showMessageMenuOnLongPress: Bool = true
     var showShareAttachmentButton: Bool = true
     var showLastReadIndicator: Bool = false

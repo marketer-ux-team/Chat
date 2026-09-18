@@ -390,6 +390,10 @@ public struct ChatView<MessageContent: View, InputViewContent: View, MenuAction:
                 globalFocusState.focus = nil
             }
         )
+        .onChange(of: chatCustomizationParameters.focusInputTrigger) { _ in
+            // MUX: derselbe Weg wie beim Antworten ueber das Menue (ChatViewModel:116).
+            viewModel.focusTheInputTextView()
+        }
         .onAppear {
             viewModel.didSendMessage = didSendMessage
             viewModel.inputViewModel = inputViewModel

@@ -84,6 +84,15 @@ public extension ChatView {
         return view
     }
 
+    /// MUX: Fokussiert das Eingabefeld, sobald sich `trigger` aendert. Gedacht fuer
+    /// Wege, die nicht ueber das Nachrichtenmenue der Bibliothek laufen — etwa die
+    /// Wischgeste zum Antworten der App.
+    func focusInputTrigger(_ trigger: Int) -> ChatView {
+        var view = self
+        view.chatCustomizationParameters.focusInputTrigger = trigger
+        return view
+    }
+
     func showMessageMenuOnLongPress(_ show: Bool) -> ChatView {
         var view = self
         view.chatCustomizationParameters.showMessageMenuOnLongPress = show
