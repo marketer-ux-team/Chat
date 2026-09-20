@@ -1,3 +1,24 @@
+
+// MUX (Schritt 77): Messspur fuer die Fokusfrage. Schreibt in denselben Ordner wie die App
+// (`tmp/b21/wischen.txt`), damit sich die Reihenfolge von Fokus setzen und Fokus abraeumen
+// am echten Geraet nachvollziehen laesst. Nur im Debug-Bau.
+func muxSpur(_ zeile: String) {
+    #if DEBUG
+    let ordner = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("b21", isDirectory: true)
+    try? FileManager.default.createDirectory(at: ordner, withIntermediateDirectories: true)
+    let datei = ordner.appendingPathComponent("wischen.txt")
+    let text = "\(Date().timeIntervalSince1970) BIBLIOTHEK \(zeile)\n"
+    if let daten = text.data(using: .utf8) {
+        if let griff = try? FileHandle(forWritingTo: datei) {
+            defer { try? griff.close() }
+            _ = try? griff.seekToEnd()
+            try? griff.write(contentsOf: daten)
+        } else {
+            try? daten.write(to: datei)
+        }
+    }
+    #endif
+}
 //
 //  ChatView.swift
 //  Chat
@@ -387,11 +408,13 @@ public struct ChatView<MessageContent: View, InputViewContent: View, MenuAction:
         }
         .simultaneousGesture(
             TapGesture().onEnded {
+                muxSpur("tippgeste raeumt fokus ab")
                 globalFocusState.focus = nil
             }
         )
         .onChange(of: chatCustomizationParameters.focusInputTrigger) { _ in
             // MUX: derselbe Weg wie beim Antworten ueber das Menue (ChatViewModel:116).
+            muxSpur("ausloeser setzt fokus")
             viewModel.focusTheInputTextView()
         }
         .onAppear {
