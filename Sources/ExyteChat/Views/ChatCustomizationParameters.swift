@@ -20,6 +20,13 @@ struct ChatCustomizationParameters {
     /// laeuft). `ChatView` ruft daraufhin denselben internen Weg wie beim Antworten:
     /// `viewModel.focusTheInputTextView()`.
     var focusInputTrigger: Int = 0
+    /// MUX (Schritt 78): Meldet der App, ob die Bibliothek das Eingabefeld gerade
+    /// fokussiert haben will. Nur fuer eine EIGENE Eingabezeile (`inputViewBuilder`)
+    /// noetig: die eingebaute `InputView` haengt `customFocus` direkt an ihr `TextField`,
+    /// eine eigene Zeile dagegen bekam es bis hierher nur um ihren Container gelegt —
+    /// und `.focused()` an einem Container bewegt auf iOS keinen Texteingabe-Responder.
+    /// Ueber diese Meldung setzt die App ihren eigenen `@FocusState` am echten Feld.
+    var onInputFocusChange: ((Bool) -> Void)? = nil
     var showMessageMenuOnLongPress: Bool = true
     var showShareAttachmentButton: Bool = true
     var showLastReadIndicator: Bool = false

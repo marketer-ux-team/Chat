@@ -20,9 +20,14 @@ struct CustomFocus<T: Hashable>: ViewModifier {
         content
             .focused($focus, equals: true)
             .onChange(of: binding) {
+                // MUX (Schritt 78): nur Messspur, kein geaendertes Verhalten. Wichtig ist,
+                // dass dieser Zweig bei einer Zuweisung „gleicher Wert auf gleichen Wert"
+                // gar nicht laeuft — `onChange` feuert nur bei echter Aenderung.
+                muxSpur("customFocus: bindung geaendert -> fokus=\(binding == equals)")
                 focus = (binding == equals)
             }
             .onChange(of: focus) {
+                muxSpur("customFocus: fokus=\(focus)")
                 if focus {
                     binding = equals
                 }

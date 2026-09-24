@@ -93,6 +93,18 @@ public extension ChatView {
         return view
     }
 
+    /// MUX (Schritt 78): Ruft `handler(true)`, sobald die Bibliothek das Eingabefeld
+    /// fokussieren will (Antworten ueber das Menue, `autoFocusTextInputOnChatOpen`,
+    /// `focusInputTrigger`), und `handler(false)`, sobald sie den Fokus abraeumt
+    /// (Tippen auf den Verlauf, Absenden, Nachrichtenmenue). Gedacht fuer Apps mit
+    /// eigener Eingabezeile: nur sie kennt das echte `TextField` und kann den
+    /// `@FocusState` daran setzen.
+    func onInputFocusChange(_ handler: @escaping (Bool) -> Void) -> ChatView {
+        var view = self
+        view.chatCustomizationParameters.onInputFocusChange = handler
+        return view
+    }
+
     func showMessageMenuOnLongPress(_ show: Bool) -> ChatView {
         var view = self
         view.chatCustomizationParameters.showMessageMenuOnLongPress = show

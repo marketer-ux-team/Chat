@@ -1,24 +1,3 @@
-
-// MUX (Schritt 77): Messspur fuer die Fokusfrage. Schreibt in denselben Ordner wie die App
-// (`tmp/b21/wischen.txt`), damit sich die Reihenfolge von Fokus setzen und Fokus abraeumen
-// am echten Geraet nachvollziehen laesst. Nur im Debug-Bau.
-func muxSpur(_ zeile: String) {
-    #if DEBUG
-    let ordner = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("b21", isDirectory: true)
-    try? FileManager.default.createDirectory(at: ordner, withIntermediateDirectories: true)
-    let datei = ordner.appendingPathComponent("wischen.txt")
-    let text = "\(Date().timeIntervalSince1970) BIBLIOTHEK \(zeile)\n"
-    if let daten = text.data(using: .utf8) {
-        if let griff = try? FileHandle(forWritingTo: datei) {
-            defer { try? griff.close() }
-            _ = try? griff.seekToEnd()
-            try? griff.write(contentsOf: daten)
-        } else {
-            try? daten.write(to: datei)
-        }
-    }
-    #endif
-}
 //
 //  ChatView.swift
 //  Chat
@@ -418,6 +397,11 @@ public struct ChatView<MessageContent: View, InputViewContent: View, MenuAction:
             viewModel.focusTheInputTextView()
         }
         .onAppear {
+            // MUX (Schritt 78): Anfangszustand einmal melden, damit die App nicht auf
+            // eine Aenderung warten muss, die beim Oeffnen des Chats gar nicht kommt.
+            chatCustomizationParameters.onInputFocusChange?(globalFocusState.focus == .uuid(viewModel.inputFieldId))
+        }
+        .onAppear {
             viewModel.didSendMessage = didSendMessage
             viewModel.inputViewModel = inputViewModel
             viewModel.globalFocusState = globalFocusState
@@ -471,8 +455,31 @@ public struct ChatView<MessageContent: View, InputViewContent: View, MenuAction:
                     localization: chatCustomizationParameters.localization
                 )
             } else {
+                // MUX (Schritt 78): Hier stand `.customFocus(...)`. Das ist fuer eine
+                // EIGENE Eingabezeile wirkungslos und zugleich schaedlich:
+                // `CustomFocus` legt `.focused($focus, equals: true)` um den ganzen
+                // Container, den der Aufrufer geliefert hat. Auf iOS bewegt
+                // `.focused()` an einem Container keinen Texteingabe-Responder — nur an
+                // einem `TextField`/`TextEditor` selbst (so macht es die eingebaute
+                // `TextInputView`). Die Fokus-Wuensche der Bibliothek kamen bei einer
+                // eigenen Zeile also nie an. Schlimmer noch: die Bindung am Container
+                // ueberlagert den `@FocusState`, den die App an ihr echtes Feld haengt,
+                // und hielt ihn auf „nicht fokussiert" fest — genau der Befund aus B21
+                // („man wischt, und muss das Textfeld erst anklicken").
+                //
+                // Stattdessen wird der Wunsch jetzt gemeldet und die App setzt ihren
+                // eigenen `@FocusState`. `onReceive` statt `onChange`, weil `@Published`
+                // bei JEDER Zuweisung sendet — auch wenn der Wert derselbe bleibt.
+                // `onChange` wuerde genau dann schweigen, wenn der Fokus laut
+                // `globalFocusState` schon auf dem Feld steht, die Tastatur aber zu ist
+                // (sie geht auch ohne Tippen auf den Verlauf zu, und dann bleibt der
+                // Wert stehen) — und das ist der haeufige Fall.
                 customInputView
-                    .customFocus($globalFocusState.focus, equals: .uuid(viewModel.inputFieldId))
+                    .onReceive(globalFocusState.$focus) { neu in
+                        let soll = (neu == .uuid(viewModel.inputFieldId))
+                        muxSpur("meldung an app: fokus=\(soll)")
+                        chatCustomizationParameters.onInputFocusChange?(soll)
+                    }
             }
         }
         .environmentObject(globalFocusState)
