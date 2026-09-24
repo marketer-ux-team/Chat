@@ -397,11 +397,6 @@ public struct ChatView<MessageContent: View, InputViewContent: View, MenuAction:
             viewModel.focusTheInputTextView()
         }
         .onAppear {
-            // MUX (Schritt 78): Anfangszustand einmal melden, damit die App nicht auf
-            // eine Aenderung warten muss, die beim Oeffnen des Chats gar nicht kommt.
-            chatCustomizationParameters.onInputFocusChange?(globalFocusState.focus == .uuid(viewModel.inputFieldId))
-        }
-        .onAppear {
             viewModel.didSendMessage = didSendMessage
             viewModel.inputViewModel = inputViewModel
             viewModel.globalFocusState = globalFocusState
@@ -474,6 +469,8 @@ public struct ChatView<MessageContent: View, InputViewContent: View, MenuAction:
                 // `globalFocusState` schon auf dem Feld steht, die Tastatur aber zu ist
                 // (sie geht auch ohne Tippen auf den Verlauf zu, und dann bleibt der
                 // Wert stehen) — und das ist der haeufige Fall.
+                // `@Published` meldet einem neuen Abnehmer sofort den aktuellen Wert —
+                // den Anfangszustand muss also niemand extra schicken.
                 customInputView
                     .onReceive(globalFocusState.$focus) { neu in
                         let soll = (neu == .uuid(viewModel.inputFieldId))
