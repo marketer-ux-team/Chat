@@ -326,6 +326,20 @@ public extension ChatView {
         return view
     }
 
+    /// MUX: Gegenstueck zu `setMessageFont` fuer die Uhrzeit IN der Blase.
+    ///
+    /// `MessageCustomizationParameters.timeFont` war bisher nur von innen zu setzen —
+    /// die Vorgabe ist eine skalierte 10-pt-Systemschrift (`MessageView.messageTimeView`,
+    /// `.font(Font(params.timeFont))`). 10 pt liegt unter jeder iOS-Textstufe
+    /// (`.caption2` = 11 pt ist die kleinste), und ein `.font()` von aussen kommt dort
+    /// nicht an, weil die Bibliothek ihre eigene Schrift direkt an der `Text`-Ansicht
+    /// setzt. Ohne diesen Weg laesst sich die Uhrzeit also gar nicht angleichen.
+    func setMessageTimeFont(_ font: UIFont) -> ChatView {
+        var view = self
+        view.messageCustomizationParameters.timeFont = font
+        return view
+    }
+
     func showAvatar(_ show: Bool) -> ChatView {
         var view = self
         view.messageCustomizationParameters.showAvatar = show
