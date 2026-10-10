@@ -162,7 +162,8 @@ struct MessageView: View {
             VStack(alignment: .leading, spacing: 4) {
                 if params.showUsername, !message.user.isCurrentUser {
                     Text(message.user.name)
-                        .font(.caption.weight(.bold))
+                        // MUX: von aussen setzbar (`setUsernameFont`); ohne Wert wie bisher.
+                        .font(params.usernameFont.map { Font($0) } ?? .caption.weight(.bold))
                         .padding(.horizontal, MessageView.horizontalTextPadding)
                 }
 
@@ -208,7 +209,12 @@ struct MessageView: View {
 
     @ViewBuilder
     func replyBubbleView(_ message: Message) -> some View {
-        VStack(alignment: .leading, spacing: 0) {
+        // MUX: das Zitat darf eine eigene Schrift tragen (`setReplyFont`). Der zitierte
+        // Text laeuft durch `MessageTextView` und nimmt `params.font` — deshalb eine Kopie
+        // der Parameter mit der Zitatschrift als `font`. Ohne Wert bleibt alles beim Alten.
+        var replyParams = params
+        if let replyFont = params.replyFont { replyParams.font = replyFont }
+        return VStack(alignment: .leading, spacing: 0) {
             Text(message.user.name)
                 .fontWeight(.semibold)
                 .padding(.horizontal, MessageView.horizontalTextPadding)
@@ -223,7 +229,7 @@ struct MessageView: View {
                 MessageTextView(
                     attributedText: message.attributedText,
                     userType: message.user.type,
-                    params: params
+                    params: replyParams
                 )
                 .padding(.horizontal, MessageView.horizontalTextPadding)
             }
@@ -232,7 +238,7 @@ struct MessageView: View {
                 recordingView(recording)
             }
         }
-        .font(.caption2)
+        .font(params.replyFont.map { Font($0) } ?? .caption2)
         .padding(.vertical, 8)
         .bubbleBackground(message, params: params, theme: theme, isReply: true)
     }

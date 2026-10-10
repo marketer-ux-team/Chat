@@ -340,6 +340,29 @@ public extension ChatView {
         return view
     }
 
+    /// MUX: Schrift des Absendernamens ueber der Blase in Gruppen.
+    ///
+    /// Die Bibliothek setzt ihn fest auf `.caption.weight(.bold)` (`MessageView`, direkt an
+    /// der `Text`-Ansicht) — ein `.font()` von aussen kommt dort nicht an. Ohne diesen Weg
+    /// liesse sich die Stufe (bei MUX `.footnote` semibold) nicht angleichen.
+    func setUsernameFont(_ font: UIFont) -> ChatView {
+        var view = self
+        view.messageCustomizationParameters.usernameFont = font
+        return view
+    }
+
+    /// MUX: Schrift des Antwort-Zitats (Name und zitierter Text).
+    ///
+    /// Vorgabe der Bibliothek: der Name in `.caption2`, der zitierte Text in `font` — also
+    /// so gross wie die Antwort selbst (`MessageView.replyBubbleView` -> `MessageTextView`).
+    /// Ein Zitat soll kleiner sein als das, worauf es antwortet; mit diesem Setzer tragen
+    /// Name und Text dieselbe Stufe, der Name behaelt sein `.semibold`.
+    func setReplyFont(_ font: UIFont) -> ChatView {
+        var view = self
+        view.messageCustomizationParameters.replyFont = font
+        return view
+    }
+
     func showAvatar(_ show: Bool) -> ChatView {
         var view = self
         view.messageCustomizationParameters.showAvatar = show

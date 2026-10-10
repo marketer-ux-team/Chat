@@ -77,6 +77,12 @@ struct MessageCustomizationParameters {
     var shouldShowPreviewForLink: (URL) -> Bool = { _ in true }
     var font = UIFontMetrics.default.scaledFont(for: UIFont.systemFont(ofSize: 15))
     var timeFont = UIFontMetrics.default.scaledFont(for: UIFont.systemFont(ofSize: 10))
+    /// MUX: Schrift des Absendernamens ueber der Blase (Gruppe). `nil` = Vorgabe der
+    /// Bibliothek (`.caption.weight(.bold)`, fest in `MessageView`).
+    var usernameFont: UIFont?
+    /// MUX: Schrift des Antwort-Zitats — Name und zitierter Text. `nil` = Vorgabe der
+    /// Bibliothek (Name in `.caption2`, Text in `font`, also so gross wie die Antwort).
+    var replyFont: UIFont?
 
     // avatar
     var showAvatar = true
